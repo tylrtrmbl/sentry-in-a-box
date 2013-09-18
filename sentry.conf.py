@@ -85,7 +85,7 @@ CACHES = {
 ################
 
 # You MUST configure the absolute URI root for Sentry:
-SENTRY_URL_PREFIX = 'http://sentry.thenewtricks.com'  # No trailing slash!
+SENTRY_URL_PREFIX = 'http://thenewtricks.com:9000'  # No trailing slash!
 
 # If you're using a reverse proxy, you should enable the X-Forwarded-Proto
 # header, and uncomment the following setting
