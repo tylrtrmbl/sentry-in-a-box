@@ -9,64 +9,46 @@ MAINTAINER tylrtrmbl <taylor@thenewtricks.com>
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get -q -y update
 
-# Install nginx
-RUN apt-get -q -y install nginx
+# Install nginx, Python, and supervisord
+RUN apt-get -q -y install nginx python-setuptools python-dev python-pip
+RUN easy_install supervisor
 
 # Install Postgres
-RUN echo "#!/bin/sh\nexit 101" > /usr/sbin/policy-rc.d # Prevent Postgres from starting on installation
-RUN chmod +x /usr/sbin/policy-rc.d
-RUN apt-get -q -y install postgresql-9.1 postgresql-contrib-9.1 libpq-dev
-RUN rm /usr/sbin/policy-rc.d
-
-# Install Python tools
-RUN apt-get -q -y install python-setuptools python-dev
-RUN easy_install pip
-
-# Install supervisord
-RUN easy_install supervisor
+RUN echo "#!/bin/sh\nexit 101" > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d # Prevent Postgres from starting
+RUN apt-get -q -y install postgresql postgresql-contrib libpq-dev && rm /usr/sbin/policy-rc.d
 
 # Install uWSGI
 RUN pip install uWSGI
 
+# Install specific common tools
+RUN apt-get -q -y install curl make
+
 # Install Sentry
-RUN easy_install -UZ sentry
-RUN easy_install -UZ sentry[postgres]
+RUN easy_install -UZ sentry sentry[postgres]
 
 # Install Redis for Sentry
+RUN mkdir /root/redis-stable && curl -L http://download.redis.io/redis-stable.tar.gz | tar xvz --strip-components=1 --directory=/root/redis-stable
+RUN cd /root/redis-stable && make && cp /root/redis-stable/src/redis-server /usr/local/bin/redis-server
 RUN pip install redis hiredis nydus
 
 # Configure nginx
-ADD nginx_config /etc/nginx/sites-available/default
-
-# Initialize the Postgres db
-ADD db_fence.sh /root/db_fence.sh
-RUN chmod a+x /root/db_fence.sh
-ADD init_db.sh /root/init_db.sh
-RUN chmod a+x /root/init_db.sh
-RUN /root/db_fence.sh /root/init_db.sh
+ADD config/nginx_sentry /etc/nginx/sites-available/sentry
 
 # Configure supervisord
-RUN echo_supervisord_conf > /etc/supervisord.conf
-ADD sentry.conf /etc/sentry.conf
-RUN cat /etc/sentry.conf >> /etc/supervisord.conf
+ADD config/supervisord_programs.conf /etc/supervisord_programs.conf
+RUN echo_supervisord_conf > /etc/supervisord.conf && cat /etc/supervisord_programs.conf >> /etc/supervisord.conf
 
 # Add configuration files to uWSGI
-ADD sentry.ini /etc/sentry.ini
+ADD config/uwsgi_sentry.ini /etc/uwsgi_sentry.ini
 
 # Configure Sentry
-ADD sentry.conf.py /etc/sentry.conf.py
-ADD sentry_upgrade.sh /root/sentry_upgrade.sh
-RUN chmod a+x /root/sentry_upgrade.sh
-RUN /root/db_fence.sh /root/sentry_upgrade.sh
-
-# No superuser is created by default!
-# YOU HAVE TO DO THIS YOURSELF!!!!!!!
-# You can use the /root/create_superuser script for this
-ADD create_superuser.sh /root/create_superuser.sh
-RUN chmod a+x /root/create_superuser.sh
+ADD config/sentry.conf.py /etc/sentry.conf.py
+ADD scripts/configure_sentry.sh /root/configure_sentry.sh
+ADD scripts/create_sentry_superuser.py /root/create_sentry_superuser.py
+RUN chmod a+x /root/configure_sentry.sh && /root/configure_sentry.sh
 
 # Add run script
 ADD run.sh /root/run.sh
 RUN chmod a+x /root/run.sh
 
-CMD ["/root/create_superuser.sh"]
+CMD ["/root/run.sh"]

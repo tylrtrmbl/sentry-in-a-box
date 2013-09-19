@@ -4,9 +4,7 @@ set -e
 
 /etc/init.d/postgresql start
 
-nginx
-supervisord -c /etc/supervisord.conf
-
-/bin/bash
+service nginx start
+supervisord -c /etc/supervisord.conf --nodaemon
 
 /etc/init.d/postgresql stop
