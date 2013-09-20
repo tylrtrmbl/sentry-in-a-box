@@ -6,7 +6,7 @@ limit_req_zone  $projectid  zone=two:10m   rate=50r/s;
 # limit_req_status 429;
 
 server {
-  listen   9000;
+  listen   80;
 
   proxy_set_header   Host                 $host;
   proxy_set_header   X-Real-IP            $remote_addr;
