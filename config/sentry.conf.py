@@ -99,14 +99,14 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = 'smtp.example.com'
-EMAIL_HOST_PASSWORD = 'supersecretpassword'
-EMAIL_HOST_USER = 'sentry@services.example.com'
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_PASSWORD = '847D132F-6E48-4A5C-AB62-357F3A312143'
+EMAIL_HOST_USER = 'postmaster@example.com'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 
 # The email address to send on behalf of
-SERVER_EMAIL = 'sentry@services.example.com'
+SERVER_EMAIL = 'sentry@example.com'
 
 ###########
 ## etc. ##
@@ -114,7 +114,7 @@ SERVER_EMAIL = 'sentry@services.example.com'
 
 # If this file ever becomes compromised, it's important to regenerate your SECRET_KEY
 # Changing this value will result in all current sessions being invalidated
-SECRET_KEY = 'd9+Aq7/EFnT09R9yEvCO1Nrea1bnEG27ju0rZZ8ldcEJW+QyvXza3w=='
+SECRET_KEY = '4BCB5779-245D-49A5-8893-B745E62C52BF'
 
 # We should have to invite users!
 SENTRY_ALLOW_REGISTRATION = False

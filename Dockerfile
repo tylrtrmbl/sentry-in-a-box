@@ -32,7 +32,7 @@ RUN cd /root/redis-stable && make && cp /root/redis-stable/src/redis-server /usr
 RUN pip install redis hiredis nydus
 
 # Configure nginx
-ADD config/nginx_sentry /etc/nginx/sites-available/sentry
+ADD config/nginx_config /etc/nginx/sites-available/default
 
 # Configure supervisord
 ADD config/supervisord_programs.conf /etc/supervisord_programs.conf
@@ -40,6 +40,7 @@ RUN echo_supervisord_conf > /etc/supervisord.conf && cat /etc/supervisord_progra
 
 # Add configuration files to uWSGI
 ADD config/uwsgi_sentry.ini /etc/uwsgi_sentry.ini
+RUN mkdir /var/run/uwsgi
 
 # Configure Sentry
 ADD config/sentry.conf.py /etc/sentry.conf.py
@@ -48,7 +49,7 @@ ADD scripts/create_sentry_superuser.py /root/create_sentry_superuser.py
 RUN chmod a+x /root/configure_sentry.sh && /root/configure_sentry.sh
 
 # Add run script
-ADD run.sh /root/run.sh
+ADD scripts/run.sh /root/run.sh
 RUN chmod a+x /root/run.sh
 
 CMD ["/root/run.sh"]

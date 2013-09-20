@@ -3,6 +3,10 @@
 set -e
 export SENTRY_CONF=/etc/sentry.conf.py
 
+SUPERUSER_USERNAME=admin
+SUPERUSER_EMAIL=admin@example.com
+SUPERUSER_PASSWORD=root
+
 /etc/init.d/postgresql start
 
 # Initialize the Postgres database
@@ -13,9 +17,7 @@ su postgres sh -c "psql -c \"CREATE DATABASE sentry OWNER sentry ENCODING 'UTF8'
 sentry upgrade --noinput
 
 # Create the base superuser
-pip install logan==0.5.8.2 # HACK: @dcramer did me a solid it seems. Thanks, man!
-python /root/create_superuser.py
-echo "Done with that superuser."
-sentry repair --owner=fancy_admin
+python /root/create_sentry_superuser.py $SUPERUSER_USERNAME $SUPERUSER_EMAIL $SUPERUSER_PASSWORD
+sentry repair --owner=$SUPERUSER_USERNAME
 
 /etc/init.d/postgresql stop

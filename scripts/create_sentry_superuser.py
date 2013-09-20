@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import sys
+
 # Bootstrap the Sentry environment
 from sentry.utils.runner import configure
 configure()
@@ -8,8 +10,8 @@ configure()
 from sentry.models import User
 
 user = User()
-user.username = 'fancy_admin'
-user.email = 'fancy@example.com'
+user.username = sys.argv[1]
+user.email = sys.argv[2]
 user.is_superuser = True
-user.set_password('supersecretpasswordillnevertellyou')
+user.set_password(sys.argv[3])
 user.save()
